@@ -1,0 +1,178 @@
+{% extends 'reservation/r_base.html' %}
+{% block contents %}
+<style>
+	table.type03 {
+	  border-collapse: collapse;
+	  text-align: left;
+	  line-height: 1.5;
+	  margin : 20px 10px;
+	}
+	table.type03 th {
+	  width: 147px;
+	  padding: 10px;
+	  font-weight: bold;
+	  vertical-align: top;
+	  color: #ffffff;
+	  /* border-right: 1px solid #ccc; */
+	  border-bottom: 1px solid #ccc;
+		background: #437299;
+		text-align: center;
+	}
+	table.type03 td {
+	  width: 349px;
+	  padding: 10px;
+	  vertical-align: top;
+	  /* border-right: 1px solid #ccc; */
+	  border-bottom: 1px solid #ccc;
+	}
+
+tbody>tr {
+  counter-increment: aaa;
+	text-align: center;
+}
+tbody>tr>td:first-child:before {
+  content: counter(aaa) " ";
+}
+
+select {
+	width: 90px;                                                /* 원하는 너비설정 */
+	padding: .200em .50em;                                        /* 여백으로 높이 설정 */
+	border: 1px solid #999;
+	font-family: inherit;
+}
+
+#test_btn1{
+	border-top-left-radius: 5px;
+	border-bottom-left-radius: 5px;
+	border-top-right-radius: 5px;
+	border-bottom-right-radius: 5px;
+	/* margin-right:-4px; */
+}
+#btn_group button{
+	border: 1px ;
+	background-color: #84bbe8;
+	color: #ffffff;
+	padding: 2px;
+}
+
+#btn_group button:hover{
+	color: #ffffff;
+	background-color: #437299;
+}
+
+
+</style>
+<!-- #153d73 -->
+<div class="container">
+      <div class="outsider"> <!-- 외부인 db 불러오기 -->
+				<br>
+				<h5>[외부 참석자 등록]</h5>
+        <table class = "type03">
+					<th>no.</th>
+          <th>회사명</th>
+          <th>성함</th>
+          <th>직책</th>
+          <th>휴대폰번호</th>
+          <th>이메일</th>
+					<tbody id="tbody">
+            {% for outsider in outsiderlist %}
+	             <tr>
+								  <td></td>
+                	<td><div>{{outsider.out_coname}}</div></td>
+                	<td><div>{{outsider.out_name}}</div></td>
+                	<td><div>{{outsider.out_position}}</div></td>
+                	<td><div>{{outsider.masking}}</div></td>
+                	<td><div>{{outsider.out_email}}</div></td>
+	           	</tr>
+            {% endfor %}
+					</tbody>
+        </table>
+				<!-- <div align ='right'> -->
+					<div id="btn_group" align ='left'>&nbsp
+						<button id="test_btn1"><a href="{% url 'reservation:addoutsider' %}" class="btn btn-info">추가하기</a></button>
+					</div>
+					<div align ='right'>
+							<select class ="selectpicker" data-style="btn-primary" id = "searchType">
+								<option value="conname" selected>회사명</option>
+								<option value="name">성함</option>
+								<option value="phone">번호</option>
+							</select>
+								<input type ="text" id="searchKeyword">
+								<button id ='searchBtn'>검색</button>
+					</div>
+				<!-- </div> -->
+				<!-- <div align ='left'>
+					<a href="{% url 'reservation:addoutsider' %}" class="btn btn-info">추가하기</a>
+				</div></div> -->
+      </div>
+</div>
+{% endblock %}
+
+{% block paginaton %}
+<div class="row mt-2">
+  <div class="col-12">
+    <nav>
+      <ul class="pagination justify-content-center">
+        {% if outsiderlist.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ outsiderlist.previous_page_number }}">&laquo;</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <a class="page-link" href="#">&laquo;</a>
+        </li>
+        {% endif %}
+        {% for i in outsiderlist.paginator.page_range %}
+          {% if i == outsiderlist.number %}
+          <li class="page-item disabled">
+            <a class="page-link" href="#">{{ i }}</a>
+          </li>
+          {% elif i > outsiderlist.number|add:"-3" or outsiderlist.number|add:"3" > i %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+          </li>
+          {% endif %}
+        {% endfor %}
+        {% if outsiderlist.has_next %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ outsiderlist.next_page_number }}">&raquo;</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <a class="page-link" href="#">&raquo;</a>
+        </li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+		$('#searchBtn').click(function(){
+			var type = $('#searchType').val();
+			var keyword = $('#searchKeyword').val()
+			$('#tbody').empty()
+			$.ajax({
+					url : 'bbs_search/',
+					type : "post",
+					data : {'csrfmiddlewaretoken' : '{{csrf_token}}', 'type' : type, 'keyword' : keyword},
+					dataType : "json",
+					success : function(data){
+						var txt = "";
+						for(i = 0; i < data.length; i++){
+							txt +="<tr><td>"+"</td>";
+							txt += "<td>"+data[i].out_coname+"</td>";
+							txt += "<td>"+data[i].out_name+"</td>";
+							txt += "<td>"+data[i].out_position+"</td>";
+							// if(data[i].out_phone.length ==)
+							txt += "<td>"+data[i].masking+"</td>";
+							txt += "<td>"+data[i].out_email+"</td></tr>";
+					};
+					$("#tbody").html(txt);
+					}
+			})
+		})
+
+</script>
+{% endblock %}

@@ -1,0 +1,279 @@
+{% extends 'reservation/r_base.html' %}
+{% load static %}
+
+{% block contents %}
+
+<html lang="en">
+
+<style>
+table{
+	border: 2px solid #d2d2d2;
+	border-collapse: collapse;
+	font-size: 0.9em;
+}
+th, td{
+	border: 1px solid #d2d2d2;
+	border-collapse: collapse;
+}
+th{
+	height: 5px;
+}
+td {
+	width: 75px;
+	height: 60px;
+}
+
+#modal{
+	position:absolute;
+	width:100%;
+	height:100%;
+	background: rgba(0,0,0,0.8);
+	top:0;
+	left:0;
+	display:none;
+}
+#modal_content{
+  width:40%; height:50%;
+  background:#fff; border-radius:10px;
+  position:relative; top:40%; left:40%;
+  margin-top:-100px; margin-left:-200px;
+  * text-align:center; */
+  box-sizing:border-box; padding:74px 10px;
+  line-height:23px; cursor:pointer;
+}
+
+.targetCell {
+  transform: scale(1);
+  -webkit-transform: scale(1);
+  -moz-transform: scale(1);
+  -ms-transform: scale(1);
+  -o-transform: scale(1);
+  transition: all 0.3s ease-in-out;   /* 부드러운 모션을 위해 추가*/
+}
+.targetCell:hover {
+  transform: scale(1.2);
+  -webkit-transform: scale(1.2);
+  -moz-transform: scale(1.2);
+  -ms-transform: scale(1.2);
+  -o-transform: scale(1.2);
+	cursor: pointer;
+}
+
+</style>
+
+<body>
+  <div id="searchday">
+		<!-- <a href="{% url 'reservation:hidden' %}">이동하기</a> -->
+      <form>
+        <p><input id="sysdate" type="date" value= "{{ sysdate }}"> ※ 현재시각은 <input type="text" size="10" id="time" disabled>입니다.
+
+      </form>
+  </div>
+<br>
+<table height="10" style="table-layout:fixed; color: #121212" id="rezinfo">
+  <tr id="time_list">
+		<th style="width:9%"></th>
+    {% for time in time_list %}
+		{% if forloop.last %}
+
+		{% else %}
+			<th>{{time.time}}</th>
+		{% endif %}
+
+    {% endfor %}
+  </tr>
+	<tbody id="tbody">
+	</tbody>
+</table>
+	<div id="modal">
+		<div id="modal_content">
+		</div>
+	</div>
+
+	{% block script %}
+
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+		<script>
+
+
+		 //요일 만들기
+		function getDate(date){
+			var week = ['일', '월', '화', '수', '목', '금', '토'];
+			var dayOfWeek = week[new Date(date).getDay()];
+			return dayOfWeek;
+		}
+
+
+		// 모달창으로 상세 정보 보여주기
+		$("#rezinfo").on("click", ".targetCell", function(){
+			var sysdate = $("#sysdate").val()
+			var _id = $(this).attr('id')
+			var time = $(this).attr('value')
+			var room = $(this).attr('name')
+			$.ajax({
+				url : 'rezlist/',
+				data : { 'sysdate': sysdate },
+				dataType : "json",
+				success : function(info){
+					if(info.length < 1){
+						$("#modal_content").html("<br><br><br><br><h2>예약된 회의가 없습니다.</h2><br><input type='button' value = '예약하기' class='btn btn-info' onClick='location.href=" +
+																		 '"http://test.madforgarlic.com:8080/reservation/newRez?room=' + room + "&time=" + time + "&sysdate=" + sysdate + '"' + "' ></button>");
+					}else{
+					for(var i=0; i<info.length; i++){
+						var infoId = info[i].room_name + info[i].time
+						if(_id == infoId){
+							var date = info[i].rez_date
+							var dayOfWeek = getDate(date)
+							var str = "<h2>" + info[i].title + "</h2>"
+									str += "<h4>"+ date + " " + dayOfWeek + " " + info[i].str_timetable + " ~ " + info[i].end_timetable +"</h4><br/>"
+							    str += "<b>회의 주요 안건</b><br/>" + info[i].comments + "<br/><br/>"
+									str += "<b>회의실 : </b>" + info[i].room_name + "<br/>"
+									str += "<b>주최자 : </b>" + info[i].organizer + "<br/>"
+									str += "<b>참석자 : </b>" + info[i].attendee_1 +  " " + info[i].attendee_2 +  " " + info[i].attendee_3 +  " " + info[i].attendee_4 +  " "
+									        + info[i].attendee_5 +  " " + info[i].attendee_6 +  " " + info[i].attendee_7 +  " " + info[i].attendee_8 +  " " + info[i].attendee_9 +  " " + info[i].attendee_10 + "<br/>"
+							$("#modal_content").html(str)
+							break;
+						}else{
+						$("#modal_content").html("<br><br><br><br><h2>예약된 회의가 없습니다.</h2><br><input type='button' class='btn btn-info' value = '예약하기' onClick='location.href=" +
+																		 '"http://test.madforgarlic.com:8080/reservation/newRez?room=' + room + "&time=" + time + "&sysdate=" + sysdate + '"' + "' ></button>");
+						//여기는 회의실 정보가 없는 경우인데, 여기다가 바로 회의실을 예약할 수 있는 링크 연결해주기
+						// td id를 "실"기준으로 잘라서 세션이나 쿼리스트링으로 넘겨주면 가능할 듯?
+					}
+				}
+			}
+			},
+			error : function(){
+				$("#modal_content").html("<br><br><br><br><h2>예약된 회의가 없습니다.</h2>" + room + time);
+			}
+		});
+			$("#modal").fadeIn();
+		});
+
+		$("#modal_content").on("click",function(){
+			$("#modal").fadeOut();
+		});
+
+			// 테이블(회의정보) 바디를 만드는 함수
+			function tbody(){
+				var str = ""
+				{% for room in meetingroom %}
+					str += "<tr> <td id='{{ room.room_name }}' class='roomname'> {{ room.room_name }} </td>"
+					{% for time in time_list %}
+						{% if forloop.last %}
+
+						{% else %}
+							str += "<td id='{{ room.room_name }}{{ time.key }}' class='targetCell' name='{{room.room_name}}' value='{{time.key}}'></td>"
+						{% endif %}
+					{% endfor %}
+				{% endfor %}
+				$("#tbody").html(str)
+			}
+
+
+
+			// 페이지가 로딩될 때 예약정보 불러서 테이블 생성
+			$(document).ready(function(){
+
+				// 회의 시간을 나타내주는 함수 (같은 값을 가진 td를 colspan하여 하나처럼 보여줌)
+				$.fn.colspan = function(rowIdx) {
+						return this.each(function(){
+
+								var that;
+								$('tr', this).filter(":eq("+rowIdx+")").each(function(row) {
+										$(this).find('td').filter(':visible').each(function(col) {
+											if($(this).html() == ""){
+
+											}else{
+												if ($(this).html() == $(that).html()) {
+														colspan = $(that).attr("colSpan") || 1;
+														colspan = Number(colspan)+1;
+														$(that).attr("colSpan",colspan);
+														$(this).hide(); // .remove();
+												} else {
+														that = this;
+												}
+											}
+										});
+								});
+						});
+				}
+
+
+				tbody();
+				{% for info in rezinfo %}
+				var infoId = "{{info.room_name}}{{info.time}}"
+				var color = '#';
+				var letters = ['A5D8FA', 'ACF3FF', '91F8D0', 'DCFFDC', 'A5E3E6', 'FFE1E6', 'F4BBDE', 'FFC8FF', 'FFF064', 'FDF5DC', 'FAB2B2'];
+				color += letters[Math.floor(Math.random() * letters.length)];
+				if($("#"+infoId).attr('id') == infoId){
+					var str = "{{info.title}}<br/><br/>{{info.organizer}}"
+					$("#"+infoId).html(str)
+					$("#"+infoId).css("background-color", color )
+					$("#"+infoId).css("text-overflow", 'ellipsis')
+					$("#"+infoId).css("overflow", 'hidden')
+					$("#"+infoId).css("white-space", 'nowrap')
+					$("#"+infoId).attr("title", "{{info.title}}")
+					$("#"+infoId).val("{{info.rezno}}")
+				}
+				{% endfor %}
+				$("#rezinfo").colspan(1);
+				$("#rezinfo").colspan(2);
+				$("#rezinfo").colspan(3);
+				$("#rezinfo").colspan(4);
+				$("#rezinfo").colspan(5);
+				$("#rezinfo").colspan(6);
+				})
+
+
+				//회의실 조회 날짜가 변경될 때
+			$("#sysdate").on('change', function(){
+				//ajax로 테이블 생성하고 정보 조회에서 불러오기
+				var sysdate = $("#sysdate").val()
+				$.ajax({
+					url : 'rezlist/',
+					data : { 'sysdate': sysdate },
+					dataType : "json",
+					success : function(info){
+						tbody();
+						for(var i=0; i<info.length; i++){
+							var color = '#';
+							var letters = ['A5D8FA', 'ACF3FF', '91F8D0', 'DCFFDC', 'A5E3E6', 'FFE1E6', 'F4BBDE', 'FFC8FF', 'FFF064', 'FDF5DC', 'FAB2B2'];
+							color += letters[Math.floor(Math.random() * letters.length)];
+							var infoId = info[i].room_name + info[i].time
+							if($("#"+infoId).attr('id') == infoId){
+								var str = info[i].title + "<br/><br/>" + info[i].organizer
+								$("#"+infoId).html(str)
+								$("#"+infoId).css("background-color", color)
+								$("#"+infoId).css("text-overflow", 'ellipsis')
+								$("#"+infoId).css("overflow", 'hidden')
+								$("#"+infoId).css("white-space", 'nowrap')
+								$("#"+infoId).attr("title", info[i].title)
+						}
+						$("#rezinfo").colspan(1);
+ 	 				 $("#rezinfo").colspan(2);
+ 	 				 $("#rezinfo").colspan(3);
+ 	 				 $("#rezinfo").colspan(4);
+ 	 				 $("#rezinfo").colspan(5);
+ 	 				 $("#rezinfo").colspan(6);
+					}
+				}
+			});
+		});
+
+		setInterval("mytime()", 1000);	//현재 시간을 구하는 함수
+		function mytime(){
+			var now = new Date();
+			var hour = now.getHours();
+			var minute = now.getMinutes();
+			var strTime =
+				hour + "시 " +
+				now.getMinutes() + "분";
+
+			document.getElementById("time").value = strTime;
+
+		}
+
+		</script>
+	{% endblock script %}
+</body>
+{% endblock contents %}

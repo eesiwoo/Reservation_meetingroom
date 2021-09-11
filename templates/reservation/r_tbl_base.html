@@ -1,0 +1,51 @@
+
+{% block contents %}
+<html>
+<div class="container">
+<head>
+  <title>회의실 예약_태블릿</title>
+  <div style="font-size:50px;">
+    <script>
+      var day =new Date();
+      var year = day.getFullYear(); //년도
+      var month = day.getMonth(); //월
+      var date = day.getDate(); //일
+
+      document.write(+year+"년" +month+"월" +date+"일");
+    </script></div>
+    <div style="font-size:70px; float: left; width: 33%; padding:10px;">
+    <script>
+      var time =new Date();
+      var hour = time.getHours(); //시
+      var minute = time.getMinutes(); //분
+
+      document.write(+hour+"시" +minute+"분");
+    </script></div>
+
+    <form method="post"> {% csrf_token %}
+    <div class="form-group" style="font-size:50px; float: left; width: 33%; padding:10px;">
+        <!--<label for="room_name">회의실 명</label>-->
+        <select name="room_name" id="room_name" style="width: 150px; height: 80px">
+              <option selected value=""> ---- </option>
+          {% for room in meetingroom %}
+              <option value="{{room.room_name}}">{{room.room_name}}</option>
+          {% endfor %}
+        </select>
+    </div>
+  </form>
+<input type="button" id="week_month" style="width: 100px; height: 60px" value="주간/월간 현황">
+</div>
+</head>
+
+<body>
+  <header>
+    <div class="form-group">
+    <br><br>
+    <hr style="border: solid 2px ;">
+    <tr>
+      <td><div>{{room.room_name}}</div></td>
+    </tr>
+  </header>
+</body>
+</html>
+{% endblock contents %}

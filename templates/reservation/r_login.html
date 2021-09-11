@@ -1,0 +1,18 @@
+{% extends "c_login.html" %}
+
+{% block head %}
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-113696990-6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('set', {'user_id': '{{ empno }}'}); // 로그인한 사번을 사용하여 User-ID를 설정합니다.
+  gtag('config', 'UA-113696990-6');
+</script>
+{% endblock %}
+
+{% block subname %}
+<h1><b>DataOn</b></h1>
+<h6><i><b>회의실 예약사이트</b></i></h6>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends 'reservation/r_base.html' %}
+{% load staticfiles %}
+{% load humanize %}
+
+{% block header %}
+<header>
+  <h1><b>회의실 예약 현황</b></h1>
+  <nav>
+    <ul>
+      <li><a href="{% url 'reservation:login' %}"><b>내 예약정보</b></a></li>
+      <li><a href="{% url 'reservation:addMeeting' %}"><b>예약하기</b></a></li>
+      <li><a href="{% url 'reservation:login' %}"><b>로그아웃</b></a></li>
+      <li><b>{{ name }}</b></li>
+    </ul>
+  </nav>
+</header>
+{% endblock %}
+
+{% block contents %}
+<body>
+  <div id="searchday">
+    <form action="" method="post">{% csrf_token %}
+        {{ form }}
+      <input type="submit" value="조회"/>
+    </form>
+  </div>
+
+  <table id="reservationlist">
+    <h5>예약 현황</h5>
+
+    <tfoot>
+    </tfoot>
+  </table>
+</body>
+{% endblock contents %}

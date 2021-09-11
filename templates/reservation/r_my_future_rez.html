@@ -1,0 +1,171 @@
+{% extends 'reservation/r_base.html' %}
+{% block contents %}
+<style>
+	table.type06 {
+	  border-collapse: collapse;
+	  text-align: left;
+	  line-height: 1.5;
+	  border-top: 1px solid #ccc;
+	  border-bottom: 1px solid #ccc;
+	  margin: 20px 10px;
+	}
+	table.type06 th {
+		/* width: 147px; */
+	  padding: 10px;
+	  font-weight: bold;
+		vertical-align: top;
+	  color: #ffffff;
+		background: #437299;
+		text-align: center;
+		border-bottom: 1px solid #ccc;
+	}
+	table.type06 td {
+	 /* width: 349px; */
+	 padding: 10px;
+	 vertical-align: top;
+	 border-bottom: 1px solid #ccc;
+	}
+	table.type06 .even {
+	  background: #efefef;
+	}
+
+tbody>tr {
+  counter-increment: aaa;
+	text-align: center;
+}
+tbody>tr>td:first-child:before {
+  content: counter(aaa) " ";
+}
+
+#modal{
+	position:absolute;
+	width:100%;
+	height:100%;
+	background: rgba(0,0,0,0.8);
+	top:0;
+	left:0;
+	display:none;
+}
+#modal_content{
+  width:40%; height:50%;
+  background:#fff; border-radius:10px;
+  position:relative; top:40%; left:40%;
+  margin-top:-100px; margin-left:-200px;
+  * text-align:center; */
+  box-sizing:border-box; padding:74px 10px;
+  line-height:23px; cursor:pointer;
+}
+.targetCell {
+  transform: scale(1);
+  -webkit-transform: scale(1);
+  -moz-transform: scale(1);
+  -ms-transform: scale(1);
+  -o-transform: scale(1);
+  transition: all 0.3s ease-in-out;   /* 부드러운 모션을 위해 추가*/
+}
+.targetCell:hover {
+  transform: scale(1.2);
+  -webkit-transform: scale(1.2);
+  -moz-transform: scale(1.2);
+  -ms-transform: scale(1.2);
+  -o-transform: scale(1.2);
+	cursor: pointer;
+}
+</style>
+
+<div align='left'>
+  <a href="{% url 'reservation:past' %}"><b>[과거예약내역]</b></a>
+</div>
+
+<div class="container">
+      <div class="outsider"> <!-- 외부인 db 불러오기 -->
+        <br>
+				<h5>[예약현황] </h5> *상세내용보기 버튼을 통해 내용과 참석자를 볼 수 있습니다. (수정과 삭제도 가능.)
+        <table class="type06">
+					<th>no.</th>
+          <th>회의날짜</th>
+          <th>회의실</th>
+          <th>회의시간</th>
+          <th>주최자</th>
+          <th>제목</th>
+					<tbody id="tbody">
+            {% for futuredate in data %}
+							<tr>
+									<td></td>
+									<td><div>{{futuredate.rez_date}}</div></td>
+                	<td><div>{{futuredate.room_name}}</div></td>
+                	<td><div>{{futuredate.str_timetable}} ~ {{futuredate.end_timetable}}</div></td>
+									<td><div>{{futuredate.organizer}}</div></td>
+                	<td><div>{{futuredate.title}}<br><button type="button" id="mybtn{{futuredate.rezno}}" class="btn btn-info">상세내용보기</button></div></td>
+							</tr>
+
+							<div class="modal fade" id="myModal{{futuredate.rezno}}" role="dialog">
+							    <div class="modal-dialog">
+							      <div class="modal-content">
+							        <div class="modal-header">
+							          <button type="button" class="close" data-dismiss="modal">×</button>
+							          <h4 class="modal-title">회의 상세 내용</h4>
+							        </div>
+							        <div class="modal-body">
+							          <p>
+													회의 내용:
+													{{futuredate.comments}}<br><br>
+													참석자 리스트:
+															1.{{futuredate.attendee_1}}
+															{% if futuredate.attendee_2 %}
+																		2.{{futuredate.attendee_2}}
+															{% endif %}
+															{% if futuredate.attendee_3 %}
+																		3.{{futuredate.attendee_3}}
+															{% endif %}
+															{% if futuredate.attendee_4 %}
+																		4.{{futuredate.attendee_4}}
+															{% endif %}
+															{% if futuredate.attendee_5 %}
+																		5.{{futuredate.attendee_5}}
+															{% endif %}
+															{% if futuredate.attendee_6 %}
+																		6.{{futuredate.attendee_6}}
+															{% endif %}
+															{% if futuredate.attendee_7 %}
+																		7.{{futuredate.attendee_7}}
+															{% endif %}
+															{% if futuredate.attendee_8 %}
+																		8.{{futuredate.attendee_8}}
+															{% endif %}
+															{% if futuredate.attendee_9 %}
+																		9.{{futuredate.attendee_9}}
+															{% endif %}
+															{% if futuredate.attendee_10 %}
+																		10.{{futuredate.attendee_10}}
+															{% endif %}
+												</p>
+							        </div>
+							        <div class="modal-footer">
+													{% if name == '{{futuredate.organizer}}'  %}
+															<button type="button" class="btn btn-default" data-dismiss="modal" onClick="location.href='http://test.madforgarlic.com:8080/reservation/my_future_rez/{{futuredate.rezno}}/delete/'">삭제</button>
+															<button type="button" class="btn btn-default" data-dismiss="modal" onClick="location.href='http://test.madforgarlic.com:8080/reservation/editRez?rezno={{futuredate.rezno}}'">수정</button>
+													{% endif %}
+														<button type="button" class="btn btn-default" data-dismiss="modal">닫기</button>
+							        </div>
+							      </div>
+							    </div>
+							  </div>
+							{% endfor %}
+					 </tbody>
+         </table>
+			 </div>
+</div><br>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+{% for a in data %}
+		$("#mybtn"+{{a.rezno}}).on("click", function(){
+				$("#myModal"+{{a.rezno}}).modal()
+		})
+{% endfor %}
+
+
+</script>
+
+{% endblock %}

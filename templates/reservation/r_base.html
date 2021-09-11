@@ -1,0 +1,48 @@
+{% extends 'c_base.html' %}
+{% load static %}
+{% load humanize %}
+
+<style type="text/css">
+
+ a:link { text-decoration-color : red;}
+
+ a:visited { text-decoration-color : red;}
+
+ a:active {text-decoration-color : red;}
+
+ a:hover { text-decoration-color : red;}
+
+</style>
+
+
+<html>
+{% block header %}
+<div align='right' id="name">
+{{ user.emp_hname }} 님 반갑습니다. <br/>
+&nbsp&nbsp&nbsp<a href="{% url 'reservation:login' %}"><b>로그아웃</b></a>
+</div>
+
+<header id="hd">
+  <style>
+    * {
+      font-size: 15px;
+      font-family: Consolas, sans-serif;
+    }
+  </style>
+  <div align='left'><br>
+  <h1><a href="{% url 'reservation:list' %}" style="color: #153d73"><b>회의실 예약 서비스</b></a></h1>
+  </div>
+  <nav>
+    <ul>
+      <div align='right'>
+        <li><a href="{% url 'reservation:list' %}"><b>전체예약현황</b></a></li>
+        &nbsp&nbsp&nbsp<li><a href="{% url 'reservation:addrez' %}"><b>예약하기</b></a></li>
+        &nbsp&nbsp&nbsp<li><a href="{% url 'reservation:outsiderlist' %}" target="_blank"><b>외부인 등록하기</b></a></li>
+        &nbsp&nbsp&nbsp<li><a href="{% url 'reservation:future' %}"><b>내 예약 확인</b></a></li>
+        &nbsp&nbsp&nbsp<li><a href="https://forms.gle/2KqDYE55uJ1XRbBY6" target="_blank"><b>피드백</b></a></li>
+      </div>
+    </ul>
+  </nav>
+</header>
+{% endblock %}
+</html>

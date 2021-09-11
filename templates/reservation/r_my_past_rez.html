@@ -1,0 +1,90 @@
+{% extends 'reservation/r_base.html' %}
+{% block contents %}
+<style>
+table{
+	border: 1px solid #d2d2d2;
+	border-collapse: collapse;
+	font-size: 0.9em;
+}
+th, td{
+	border: 1px solid #d2d2d2;
+	border-collapse: collapse;
+}
+th{
+	height: 5px;
+}
+td {
+	width: 75px;
+	height: 30px;
+}
+
+/*
+테이블 순번 나타내는 style
+tbody>tr {
+  counter-increment: aaa;
+}
+tbody>tr>td:first-child:before {
+  content: counter(aaa) " ";
+} */
+</style>
+
+<div align='left'>
+  <a href="{% url 'reservation:future' %}"><b>[예약현황]</b></a>
+  <a href="{% url 'reservation:past' %}"><b>[과거예약내역]</b></a>
+</div>
+
+<div class="container">
+      <div class="outsider"> <!-- 외부인 db 불러오기 -->
+        <br>
+				[과거예약내역]
+        <table>
+          <th>회의날짜</th>
+          <th>회의실</th>
+          <th>회의시간</th>
+          <th>주최자</th>
+          <th>제목</th>
+          <th>참석자</th>
+					<tbody id="tbody">
+            {% for futuredate in data %}
+	             <tr>
+                	<td><div>{{futuredate.rez_date}}</div></td>
+                	<td><div>{{futuredate.room_name}}</div></td>
+                	<td><div>{{futuredate.str_timetable}} ~ {{futuredate.end_timetable}}</div></td>
+									<td><div>{{futuredate.organizer}}</div></td>
+                	<td><div>{{futuredate.title}}</div></td>
+                	<td><div>{{futuredate.attendee_1}}<br>{{futuredate.attendee_2}}<br>{{futuredate.attendee_3}}
+									<!-- <br>{{futuredate.attendee_4}}<br>{{futuredate.attendee_5}}<br>{{futuredate.attendee_6}}
+								<br>{{futuredate.attendee_7}}<br>{{futuredate.attendee_8}}<br>{{futuredate.attendee_9}}<br>{{futuredate.attendee_10}} -->
+							</div></td>
+	           	</tr>
+            {% endfor %}
+					</tbody>
+        </table>
+      </div>
+</div><br>
+{% endblock %}
+
+<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+			var sysdate = "{{sysdate}}"
+			alert("안녕")
+			$(document).ready(function(){
+				alert("안녕")
+				{% for datas in data %}
+				var rezdate = "{{datas.rez_date}}"
+				var txt = "";
+				if(rezdate >= sysdate){
+					for(i = 0; i < data.length; i++){
+						alert(data)
+						txt += "<tr><td>"+datas[i].rez_date+"</td>";
+						txt += "<td>"+datas[i].room_name+"</td>";
+						txt += "<td>"+datas[i].organizer+"</td>";
+						// if(data[i].out_phone.length ==)
+						txt += "<td>"+datas[i].title+"</td>";
+						txt += "<td>"+datas[i].attendee_1+"</td></tr>";
+				}}
+				$("#tbody").html(txt);
+				{% endfor %}
+				colspan();
+				})
+</script> -->
